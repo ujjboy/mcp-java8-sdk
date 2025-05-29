@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.modelcontextprotocol.MockMcpClientTransport;
+import io.modelcontextprotocol.util.JDK8Utils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,8 +47,8 @@ class McpClientSessionTests {
 	@BeforeEach
 	void setUp() {
 		transport = new MockMcpClientTransport();
-		session = new McpClientSession(TIMEOUT, transport, Map.of(),
-				Map.of(TEST_NOTIFICATION, params -> Mono.fromRunnable(() -> logger.info("Status update: " + params))));
+		session = new McpClientSession(TIMEOUT, transport, JDK8Utils.mapOf(),
+				JDK8Utils.mapOf(TEST_NOTIFICATION, params -> Mono.fromRunnable(() -> logger.info("Status update: " + params))));
 	}
 
 	@AfterEach
@@ -59,16 +60,16 @@ class McpClientSessionTests {
 
 	@Test
 	void testConstructorWithInvalidArguments() {
-		assertThatThrownBy(() -> new McpClientSession(null, transport, Map.of(), Map.of()))
+		assertThatThrownBy(() -> new McpClientSession(null, transport, JDK8Utils.mapOf(), JDK8Utils.mapOf()))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessageContaining("The requestTimeout can not be null");
 
-		assertThatThrownBy(() -> new McpClientSession(TIMEOUT, null, Map.of(), Map.of()))
+		assertThatThrownBy(() -> new McpClientSession(TIMEOUT, null, JDK8Utils.mapOf(), JDK8Utils.mapOf()))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessageContaining("transport can not be null");
 	}
 
-	TypeReference<String> responseType = new TypeReference<>() {
+	TypeReference<String> responseType = new TypeReference<String>() {
 	};
 
 	@Test
@@ -121,7 +122,7 @@ class McpClientSessionTests {
 
 	@Test
 	void testSendNotification() {
-		Map<String, Object> params = Map.of("key", "value");
+		Map<String, Object> params = JDK8Utils.mapOf("key", "value");
 		Mono<Void> notificationMono = session.sendNotification(TEST_NOTIFICATION, params);
 
 		// Verify notification was sent
@@ -137,10 +138,10 @@ class McpClientSessionTests {
 	@Test
 	void testRequestHandling() {
 		String echoMessage = "Hello MCP!";
-		Map<String, McpClientSession.RequestHandler<?>> requestHandlers = Map.of(ECHO_METHOD,
+		Map<String, McpClientSession.RequestHandler<?>> requestHandlers = JDK8Utils.mapOf(ECHO_METHOD,
 				params -> Mono.just(params));
 		transport = new MockMcpClientTransport();
-		session = new McpClientSession(TIMEOUT, transport, requestHandlers, Map.of());
+		session = new McpClientSession(TIMEOUT, transport, requestHandlers, JDK8Utils.mapOf());
 
 		// Simulate incoming request
 		McpSchema.JSONRPCRequest request = new McpSchema.JSONRPCRequest(McpSchema.JSONRPC_VERSION, ECHO_METHOD,
@@ -160,11 +161,11 @@ class McpClientSessionTests {
 		Sinks.One<Object> receivedParams = Sinks.one();
 
 		transport = new MockMcpClientTransport();
-		session = new McpClientSession(TIMEOUT, transport, Map.of(),
-				Map.of(TEST_NOTIFICATION, params -> Mono.fromRunnable(() -> receivedParams.tryEmitValue(params))));
+		session = new McpClientSession(TIMEOUT, transport, JDK8Utils.mapOf(),
+				JDK8Utils.mapOf(TEST_NOTIFICATION, params -> Mono.fromRunnable(() -> receivedParams.tryEmitValue(params))));
 
 		// Simulate incoming notification from the server
-		Map<String, Object> notificationParams = Map.of("status", "ready");
+		Map<String, Object> notificationParams = JDK8Utils.mapOf("status", "ready");
 
 		McpSchema.JSONRPCNotification notification = new McpSchema.JSONRPCNotification(McpSchema.JSONRPC_VERSION,
 				TEST_NOTIFICATION, notificationParams);

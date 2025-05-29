@@ -7,6 +7,7 @@ package io.modelcontextprotocol.client.transport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -305,7 +306,7 @@ public class StdioClientTransport implements McpClientTransport {
 						// embedded newlines.
 						jsonMessage = jsonMessage.replace("\r\n", "\\n").replace("\n", "\\n").replace("\r", "\\n");
 
-						var os = this.process.getOutputStream();
+						OutputStream os = this.process.getOutputStream();
 						synchronized (os) {
 							os.write(jsonMessage.getBytes(StandardCharsets.UTF_8));
 							os.write("\n".getBytes(StandardCharsets.UTF_8));
@@ -342,43 +343,54 @@ public class StdioClientTransport implements McpClientTransport {
 	@Override
 	public Mono<Void> closeGracefully() {
 		return Mono.fromRunnable(() -> {
-			isClosing = true;
-			logger.debug("Initiating graceful shutdown");
-		}).then(Mono.defer(() -> {
-			// First complete all sinks to stop accepting new messages
-			inboundSink.tryEmitComplete();
-			outboundSink.tryEmitComplete();
-			errorSink.tryEmitComplete();
+					isClosing = true;
+					logger.debug("Initiating graceful shutdown");
+				}).then(Mono.defer(() -> {
+					// First complete all sinks to stop accepting new messages
+					inboundSink.tryEmitComplete();
+					outboundSink.tryEmitComplete();
+					errorSink.tryEmitComplete();
 
-			// Give a short time for any pending messages to be processed
-			return Mono.delay(Duration.ofMillis(100));
-		})).then(Mono.defer(() -> {
-			logger.debug("Sending TERM to process");
-			if (this.process != null) {
-				this.process.destroy();
-				return Mono.fromFuture(process.onExit());
-			}
-			else {
-				logger.warn("Process not started");
-				return Mono.empty();
-			}
-		})).doOnNext(process -> {
-			if (process.exitValue() != 0) {
-				logger.warn("Process terminated with code " + process.exitValue());
-			}
-		}).then(Mono.fromRunnable(() -> {
-			try {
-				// The Threads are blocked on readLine so disposeGracefully would not
-				// interrupt them, therefore we issue an async hard dispose.
-				inboundScheduler.dispose();
-				errorScheduler.dispose();
-				outboundScheduler.dispose();
+					// Give a short time for any pending messages to be processed
+					return Mono.delay(Duration.ofMillis(100));
+				})).then(Mono.defer(() -> {
+					logger.debug("Sending TERM to process");
+					if (this.process != null) {
+						this.process.destroy();
+						return Mono.create(sink -> {
+							try {
+								int exitCode = process.waitFor();
+								sink.success(process);
+							} catch (InterruptedException e) {
+								Thread.currentThread().interrupt();
+								sink.error(e);
+							}
+						});
+					}
+					else {
+						logger.warn("Process not started");
+						return Mono.empty();
+					}
+				})).doOnNext(process -> {
+					if (process instanceof Process) {
+						Process p = (Process) process;
+						if (p.exitValue() != 0) {
+							logger.warn("Process terminated with code " + p.exitValue());
+						}
+					}
+				}).then(Mono.fromRunnable(() -> {
+					try {
+						// The Threads are blocked on readLine so disposeGracefully would not
+						// interrupt them, therefore we issue an async hard dispose.
+						inboundScheduler.dispose();
+						errorScheduler.dispose();
+						outboundScheduler.dispose();
 
-				logger.debug("Graceful shutdown completed");
+						logger.debug("Graceful shutdown completed");
 			}
 			catch (Exception e) {
-				logger.error("Error during graceful shutdown", e);
-			}
+						logger.error("Error during graceful shutdown", e);
+					}
 		})).then().subscribeOn(Schedulers.boundedElastic());
 	}
 

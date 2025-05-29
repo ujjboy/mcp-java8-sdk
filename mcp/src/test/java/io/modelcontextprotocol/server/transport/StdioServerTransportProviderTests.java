@@ -19,6 +19,7 @@ import io.modelcontextprotocol.spec.McpError;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpServerSession;
 import io.modelcontextprotocol.spec.McpServerTransport;
+import io.modelcontextprotocol.util.JDK8Utils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -146,7 +147,7 @@ class StdioServerTransportProviderTests {
 
 		// Send notification
 		String method = "testNotification";
-		Map<String, Object> params = Map.of("key", "value");
+		Map<String, Object> params = JDK8Utils.mapOf("key", "value");
 
 		StepVerifier.create(transportProvider.notifyClients(method, params)).verifyComplete();
 
@@ -187,7 +188,7 @@ class StdioServerTransportProviderTests {
 
 		transportProvider = new StdioServerTransportProvider(objectMapper);
 		// Send notification before setting session factory
-		StepVerifier.create(transportProvider.notifyClients("testNotification", Map.of("key", "value")))
+		StepVerifier.create(transportProvider.notifyClients("testNotification", JDK8Utils.mapOf("key", "value")))
 			.verifyErrorSatisfies(error -> {
 				assertThat(error).isInstanceOf(McpError.class);
 			});

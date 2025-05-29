@@ -93,7 +93,7 @@ public class StdioServerTransportProvider implements McpServerTransportProvider 
 	@Override
 	public void setSessionFactory(McpServerSession.Factory sessionFactory) {
 		// Create a single session for the stdio connection
-		var transport = new StdioMcpSessionTransport();
+		StdioMcpSessionTransport transport = new StdioMcpSessionTransport();
 		this.session = sessionFactory.create(transport);
 		transport.initProcessing();
 	}

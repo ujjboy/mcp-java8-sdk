@@ -27,6 +27,7 @@ import io.modelcontextprotocol.spec.McpSchema.SubscribeRequest;
 import io.modelcontextprotocol.spec.McpSchema.TextContent;
 import io.modelcontextprotocol.spec.McpSchema.Tool;
 import io.modelcontextprotocol.spec.McpSchema.UnsubscribeRequest;
+import io.modelcontextprotocol.util.JDK8Utils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -91,7 +92,7 @@ public abstract class AbstractMcpSyncClientTests {
 
 	void withClient(McpClientTransport transport, Function<McpClient.SyncSpec, McpClient.SyncSpec> customizer,
 			Consumer<McpSyncClient> c) {
-		var client = client(transport, customizer);
+		McpSyncClient client = client(transport, customizer);
 		try {
 			c.accept(client);
 		}
@@ -176,7 +177,7 @@ public abstract class AbstractMcpSyncClientTests {
 
 	@Test
 	void testCallToolsWithoutInitialization() {
-		verifyCallTimesOut(client -> client.callTool(new CallToolRequest("add", Map.of("a", 3, "b", 4))),
+		verifyCallTimesOut(client -> client.callTool(new CallToolRequest("add", JDK8Utils.mapOf("a", 3, "b", 4))),
 				"calling tools");
 	}
 
@@ -184,7 +185,7 @@ public abstract class AbstractMcpSyncClientTests {
 	void testCallTools() {
 		withClient(createMcpTransport(), mcpSyncClient -> {
 			mcpSyncClient.initialize();
-			CallToolResult toolResult = mcpSyncClient.callTool(new CallToolRequest("add", Map.of("a", 3, "b", 4)));
+			CallToolResult toolResult = mcpSyncClient.callTool(new CallToolRequest("add", JDK8Utils.mapOf("a", 3, "b", 4)));
 
 			assertThat(toolResult).isNotNull().satisfies(result -> {
 
@@ -214,7 +215,7 @@ public abstract class AbstractMcpSyncClientTests {
 
 	@Test
 	void testCallToolWithoutInitialization() {
-		CallToolRequest callToolRequest = new CallToolRequest("echo", Map.of("message", TEST_MESSAGE));
+		CallToolRequest callToolRequest = new CallToolRequest("echo", JDK8Utils.mapOf("message", TEST_MESSAGE));
 		verifyCallTimesOut(client -> client.callTool(callToolRequest), "calling tools");
 	}
 
@@ -222,7 +223,7 @@ public abstract class AbstractMcpSyncClientTests {
 	void testCallTool() {
 		withClient(createMcpTransport(), mcpSyncClient -> {
 			mcpSyncClient.initialize();
-			CallToolRequest callToolRequest = new CallToolRequest("echo", Map.of("message", TEST_MESSAGE));
+			CallToolRequest callToolRequest = new CallToolRequest("echo", JDK8Utils.mapOf("message", TEST_MESSAGE));
 
 			CallToolResult callToolResult = mcpSyncClient.callTool(callToolRequest);
 
@@ -236,7 +237,7 @@ public abstract class AbstractMcpSyncClientTests {
 	@Test
 	void testCallToolWithInvalidTool() {
 		withClient(createMcpTransport(), mcpSyncClient -> {
-			CallToolRequest invalidRequest = new CallToolRequest("nonexistent_tool", Map.of("message", TEST_MESSAGE));
+			CallToolRequest invalidRequest = new CallToolRequest("nonexistent_tool", JDK8Utils.mapOf("message", TEST_MESSAGE));
 
 			assertThatThrownBy(() -> mcpSyncClient.callTool(invalidRequest)).isInstanceOf(Exception.class);
 		});

@@ -31,15 +31,15 @@ class UtilsTests {
 	@Test
 	void testCollectionIsEmpty() {
 		assertTrue(Utils.isEmpty((Collection<?>) null));
-		assertTrue(Utils.isEmpty(List.of()));
-		assertFalse(Utils.isEmpty(List.of("test")));
+		assertTrue(Utils.isEmpty(JDK8Utils.listOf()));
+		assertFalse(Utils.isEmpty(JDK8Utils.listOf("test")));
 	}
 
 	@Test
 	void testMapIsEmpty() {
 		assertTrue(Utils.isEmpty((Map<?, ?>) null));
-		assertTrue(Utils.isEmpty(Map.of()));
-		assertFalse(Utils.isEmpty(Map.of("key", "value")));
+		assertTrue(Utils.isEmpty(JDK8Utils.mapOf()));
+		assertFalse(Utils.isEmpty(JDK8Utils.mapOf("key", "value")));
 	}
 
 	@ParameterizedTest

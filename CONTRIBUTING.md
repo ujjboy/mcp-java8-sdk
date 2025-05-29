@@ -7,7 +7,7 @@ This document outlines how to contribute to this project.
 
 The following software is required to work on the codebase:
 
-- `Java 17` or above
+- `Java 8` or above
 - `Docker`
 - `npx`
 

@@ -11,6 +11,7 @@ import io.modelcontextprotocol.MockMcpClientTransport;
 import io.modelcontextprotocol.spec.McpError;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.InitializeResult;
+import io.modelcontextprotocol.util.JDK8Utils;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -67,7 +68,7 @@ class McpClientProtocolVersionTests {
 			.requestTimeout(REQUEST_TIMEOUT)
 			.build();
 
-		client.setProtocolVersions(List.of(oldVersion, McpSchema.LATEST_PROTOCOL_VERSION));
+		client.setProtocolVersions(JDK8Utils.listOf(oldVersion, McpSchema.LATEST_PROTOCOL_VERSION));
 
 		try {
 			Mono<InitializeResult> initializeResultMono = client.initialize();
@@ -76,7 +77,7 @@ class McpClientProtocolVersionTests {
 				McpSchema.JSONRPCRequest request = transport.getLastSentMessageAsRequest();
 				assertThat(request.params()).isInstanceOf(McpSchema.InitializeRequest.class);
 				McpSchema.InitializeRequest initRequest = (McpSchema.InitializeRequest) request.params();
-				assertThat(initRequest.protocolVersion()).isIn(List.of(oldVersion, McpSchema.LATEST_PROTOCOL_VERSION));
+				assertThat(initRequest.protocolVersion()).isIn(JDK8Utils.listOf(oldVersion, McpSchema.LATEST_PROTOCOL_VERSION));
 
 				transport.simulateIncomingMessage(new McpSchema.JSONRPCResponse(McpSchema.JSONRPC_VERSION, request.id(),
 						new McpSchema.InitializeResult(oldVersion, null,
@@ -130,7 +131,7 @@ class McpClientProtocolVersionTests {
 			.requestTimeout(REQUEST_TIMEOUT)
 			.build();
 
-		client.setProtocolVersions(List.of(oldVersion, middleVersion, latestVersion));
+		client.setProtocolVersions(JDK8Utils.listOf(oldVersion, middleVersion, latestVersion));
 
 		try {
 			Mono<InitializeResult> initializeResultMono = client.initialize();

@@ -49,7 +49,7 @@ public class DefaultMcpUriTemplateManager implements McpUriTemplateManager {
 	@Override
 	public List<String> getVariableNames() {
 		if (uriTemplate == null || uriTemplate.isEmpty()) {
-			return List.of();
+			return JDK8Utils.listOf();
 		}
 
 		List<String> variables = new ArrayList<>();

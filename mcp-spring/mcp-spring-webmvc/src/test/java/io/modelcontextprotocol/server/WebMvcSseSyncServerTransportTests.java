@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.modelcontextprotocol.server.transport.WebMvcSseServerTransportProvider;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.startup.Tomcat;
 import org.junit.jupiter.api.Timeout;
 
@@ -74,7 +75,7 @@ class WebMvcSseSyncServerTransportTests extends AbstractMcpSyncServerTests {
 		DispatcherServlet dispatcherServlet = new DispatcherServlet(appContext);
 
 		// Add servlet to Tomcat and get the wrapper
-		var wrapper = Tomcat.addServlet(context, "dispatcherServlet", dispatcherServlet);
+		Wrapper wrapper = Tomcat.addServlet(context, "dispatcherServlet", dispatcherServlet);
 		wrapper.setLoadOnStartup(1);
 		context.addServletMappingDecoded("/*", "dispatcherServlet");
 

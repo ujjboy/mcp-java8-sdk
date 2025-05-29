@@ -88,7 +88,7 @@ public class McpUriTemplateManagerTests {
 
 	@Test
 	void shouldMatchUriAgainstTemplatePattern() {
-		var uriTemplateManager = this.uriTemplateFactory.create("/api/users/{userId}/posts/{postId}");
+		McpUriTemplateManager uriTemplateManager = this.uriTemplateFactory.create("/api/users/{userId}/posts/{postId}");
 
 		assertTrue(uriTemplateManager.matches("/api/users/123/posts/456"));
 		assertFalse(uriTemplateManager.matches("/api/users/123/comments/456"));

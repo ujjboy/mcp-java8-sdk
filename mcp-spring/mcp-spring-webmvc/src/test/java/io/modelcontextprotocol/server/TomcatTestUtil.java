@@ -7,7 +7,13 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.apache.catalina.Context;
+import org.apache.catalina.Wrapper;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -22,13 +28,19 @@ public class TomcatTestUtil {
 		// Prevent instantiation
 	}
 
-	public record TomcatServer(Tomcat tomcat, AnnotationConfigWebApplicationContext appContext) {
+	@Accessors(fluent = true)
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class TomcatServer {
+		Tomcat tomcat;
+		AnnotationConfigWebApplicationContext appContext;
 	}
 
 	public static TomcatServer createTomcatServer(String contextPath, int port, Class<?> componentClass) {
 
 		// Set up Tomcat first
-		var tomcat = new Tomcat();
+		Tomcat tomcat = new Tomcat();
 		tomcat.setPort(port);
 
 		// Set Tomcat base directory to java.io.tmpdir to avoid permission issues
@@ -39,7 +51,7 @@ public class TomcatTestUtil {
 		Context context = tomcat.addContext(contextPath, baseDir);
 
 		// Create and configure Spring WebMvc context
-		var appContext = new AnnotationConfigWebApplicationContext();
+		AnnotationConfigWebApplicationContext appContext = new AnnotationConfigWebApplicationContext();
 		appContext.register(componentClass);
 		appContext.setServletContext(context.getServletContext());
 		appContext.refresh();
@@ -48,14 +60,14 @@ public class TomcatTestUtil {
 		DispatcherServlet dispatcherServlet = new DispatcherServlet(appContext);
 
 		// Add servlet to Tomcat and get the wrapper
-		var wrapper = Tomcat.addServlet(context, "dispatcherServlet", dispatcherServlet);
+		Wrapper wrapper = Tomcat.addServlet(context, "dispatcherServlet", dispatcherServlet);
 		wrapper.setLoadOnStartup(1);
 		wrapper.setAsyncSupported(true);
 		context.addServletMappingDecoded("/*", "dispatcherServlet");
 
 		try {
 			// Configure and start the connector with async support
-			var connector = tomcat.getConnector();
+			Connector connector = tomcat.getConnector();
 			connector.setAsyncTimeout(3000); // 3 seconds timeout for async requests
 		}
 		catch (Exception e) {

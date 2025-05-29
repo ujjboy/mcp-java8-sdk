@@ -54,30 +54,31 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>17</java.version>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<java.version>8</java.version>
+		<maven.compiler.source>8</maven.compiler.source>
+		<maven.compiler.target>8</maven.compiler.target>
 		<surefireArgLine/>
 
 		<assert4j.version>3.26.3</assert4j.version>
 		<junit.version>5.10.2</junit.version>
-		<mockito.version>5.17.0</mockito.version>
+		<mockito.version>4.11.0</mockito.version>
 		<testcontainers.version>1.20.4</testcontainers.version>
 		<byte-buddy.version>1.17.5</byte-buddy.version>		
 
 		<slf4j-api.version>2.0.16</slf4j-api.version>
-		<logback.version>1.5.15</logback.version>
+		<logback.version>1.2.11</logback.version>
 		<jackson.version>2.17.0</jackson.version>
-		<springframework.version>6.2.1</springframework.version>
+		<springframework.version>5.3.39</springframework.version>
+		<lombok.version>1.18.30</lombok.version>
 
 		<!-- plugin versions -->
-		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+		<maven-compiler-plugin.version>3.10.0</maven-compiler-plugin.version>
 		<maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
 		<maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
 		<maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
 		<maven-source-plugin.version>3.3.0</maven-source-plugin.version>
 		<jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
-		<flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
+		<flatten-maven-plugin.version>1.2.5</flatten-maven-plugin.version>
 		<maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
 		<asciidoctor-maven-plugin.version>2.2.3</asciidoctor-maven-plugin.version>
 		<maven-assembly-plugin.version>3.7.0</maven-assembly-plugin.version>
@@ -85,16 +86,16 @@
 		<maven-site-plugin.version>4.0.0-M13</maven-site-plugin.version>
 		<maven-project-info-reports-plugin.version>3.4.5</maven-project-info-reports-plugin.version>
 		<maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-		<spring-javaformat-maven-plugin.version>0.0.43</spring-javaformat-maven-plugin.version>
+		<spring-javaformat-maven-plugin.version>0.0.41</spring-javaformat-maven-plugin.version>
 		<org.maven.antora-version>1.0.0-alpha.4</org.maven.antora-version>
 		<io.spring.maven.antora-version>0.0.4</io.spring.maven.antora-version>
 		<asciidoctorj-pdf.version>1.6.2</asciidoctorj-pdf.version>
 		<junit-jupiter.version>5.10.5</junit-jupiter.version>
-		<tomcat.version>11.0.2</tomcat.version>
-		<jakarta.servlet.version>6.1.0</jakarta.servlet.version>
+		<tomcat.version>9.0.99</tomcat.version>
+		<javax.servlet.version>4.0.1</javax.servlet.version>
 		<awaitility.version>4.2.0</awaitility.version>
-		<bnd-maven-plugin.version>7.1.0</bnd-maven-plugin.version>
-		<json-unit-assertj.version>4.1.0</json-unit-assertj.version>
+		<bnd-maven-plugin.version>6.4.0</bnd-maven-plugin.version>
+		<json-unit-assertj.version>2.40.1</json-unit-assertj.version>
 
 	</properties>
 
@@ -109,20 +110,6 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>io.spring.javaformat</groupId>
-				<artifactId>spring-javaformat-maven-plugin</artifactId>
-				<version>${spring-javaformat-maven-plugin.version}</version>
-				<executions>
-					<execution>
-						<phase>validate</phase>
-						<inherited>true</inherited>
-						<goals>
-							<goal>validate</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
 				<version>${maven-site-plugin.version}</version>
@@ -132,7 +119,6 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
-					<release>${java.version}</release>
 					<compilerArgs>
 						<compilerArg>-parameters</compilerArg>
 					</compilerArgs>
@@ -180,7 +166,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven-surefire-plugin.version}</version>
 				<configuration>
-					<argLine>${surefireArgLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
+<!--					<argLine>${surefireArgLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>-->
 					<useFile>false</useFile>
 					<trimStackTrace>false</trimStackTrace>
 

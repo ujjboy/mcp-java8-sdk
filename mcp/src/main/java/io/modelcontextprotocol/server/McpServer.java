@@ -478,7 +478,7 @@ public interface McpServer {
 		 *
 		 * <p>
 		 * Example usage: <pre>{@code
-		 * .prompts(Map.of("analysis", new McpServerFeatures.AsyncPromptSpecification(
+		 * .prompts(JDK8Utils.mapOf("analysis", new McpServerFeatures.AsyncPromptSpecification(
 		 *     new Prompt("analysis", "Code analysis template"),
 		 *     request -> Mono.fromSupplier(() -> generateAnalysisPrompt(request))
 		 *         .map(GetPromptResult::new)
@@ -630,10 +630,10 @@ public interface McpServer {
 		 * settings.
 		 */
 		public McpAsyncServer build() {
-			var features = new McpServerFeatures.Async(this.serverInfo, this.serverCapabilities, this.tools,
+			McpServerFeatures.Async features = new McpServerFeatures.Async(this.serverInfo, this.serverCapabilities, this.tools,
 					this.resources, this.resourceTemplates, this.prompts, this.completions, this.rootsChangeHandlers,
 					this.instructions);
-			var mapper = this.objectMapper != null ? this.objectMapper : new ObjectMapper();
+			ObjectMapper mapper = this.objectMapper != null ? this.objectMapper : new ObjectMapper();
 			return new McpAsyncServer(this.transportProvider, mapper, features, this.requestTimeout,
 					this.uriTemplateManagerFactory);
 		}
@@ -1101,7 +1101,7 @@ public interface McpServer {
 		public SyncSpecification rootsChangeHandlers(
 				BiConsumer<McpSyncServerExchange, List<McpSchema.Root>>... handlers) {
 			Assert.notNull(handlers, "Handlers list must not be null");
-			return this.rootsChangeHandlers(List.of(handlers));
+			return this.rootsChangeHandlers(handlers);
 		}
 
 		/**
@@ -1126,8 +1126,8 @@ public interface McpServer {
 					this.tools, this.resources, this.resourceTemplates, this.prompts, this.completions,
 					this.rootsChangeHandlers, this.instructions);
 			McpServerFeatures.Async asyncFeatures = McpServerFeatures.Async.fromSync(syncFeatures);
-			var mapper = this.objectMapper != null ? this.objectMapper : new ObjectMapper();
-			var asyncServer = new McpAsyncServer(this.transportProvider, mapper, asyncFeatures, this.requestTimeout,
+			ObjectMapper mapper = this.objectMapper != null ? this.objectMapper : new ObjectMapper();
+			McpAsyncServer asyncServer = new McpAsyncServer(this.transportProvider, mapper, asyncFeatures, this.requestTimeout,
 					this.uriTemplateManagerFactory);
 
 			return new McpSyncServer(asyncServer);

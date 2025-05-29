@@ -9,6 +9,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.modelcontextprotocol.server.McpAsyncServerExchange;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -157,9 +161,10 @@ public class McpServerSession implements McpSession {
 		return Mono.defer(() -> {
 			// TODO handle errors for communication to without initialization happening
 			// first
-			if (message instanceof McpSchema.JSONRPCResponse response) {
-				logger.debug("Received Response: {}", response);
-				var sink = pendingResponses.remove(response.id());
+			if (message instanceof McpSchema.JSONRPCResponse) {
+                McpSchema.JSONRPCResponse response = (McpSchema.JSONRPCResponse) message;
+                logger.debug("Received Response: {}", response);
+				MonoSink<McpSchema.JSONRPCResponse> sink = pendingResponses.remove(response.id());
 				if (sink == null) {
 					logger.warn("Unexpected response for unknown id {}", response.id());
 				}
@@ -168,18 +173,20 @@ public class McpServerSession implements McpSession {
 				}
 				return Mono.empty();
 			}
-			else if (message instanceof McpSchema.JSONRPCRequest request) {
-				logger.debug("Received request: {}", request);
+			else if (message instanceof McpSchema.JSONRPCRequest) {
+                McpSchema.JSONRPCRequest request = (McpSchema.JSONRPCRequest) message;
+                logger.debug("Received request: {}", request);
 				return handleIncomingRequest(request).onErrorResume(error -> {
-					var errorResponse = new McpSchema.JSONRPCResponse(McpSchema.JSONRPC_VERSION, request.id(), null,
+					McpSchema.JSONRPCResponse errorResponse = new McpSchema.JSONRPCResponse(McpSchema.JSONRPC_VERSION, request.id(), null,
 							new McpSchema.JSONRPCResponse.JSONRPCError(McpSchema.ErrorCodes.INTERNAL_ERROR,
 									error.getMessage(), null));
 					// TODO: Should the error go to SSE or back as POST return?
 					return this.transport.sendMessage(errorResponse).then(Mono.empty());
 				}).flatMap(this.transport::sendMessage);
 			}
-			else if (message instanceof McpSchema.JSONRPCNotification notification) {
-				// TODO handle errors for communication to without initialization
+			else if (message instanceof McpSchema.JSONRPCNotification) {
+                McpSchema.JSONRPCNotification notification = (McpSchema.JSONRPCNotification) message;
+                // TODO handle errors for communication to without initialization
 				// happening first
 				logger.debug("Received notification: {}", notification);
 				// TODO: in case of error, should the POST request be signalled?
@@ -214,7 +221,7 @@ public class McpServerSession implements McpSession {
 			else {
 				// TODO handle errors for communication to this session without
 				// initialization happening first
-				var handler = this.requestHandlers.get(request.method());
+				McpServerSession.RequestHandler<?> handler = this.requestHandlers.get(request.method());
 				if (handler == null) {
 					MethodNotFoundError error = getMethodNotFoundError(request.method());
 					return Mono.just(new McpSchema.JSONRPCResponse(McpSchema.JSONRPC_VERSION, request.id(), null,
@@ -246,7 +253,7 @@ public class McpServerSession implements McpSession {
 				return this.initNotificationHandler.handle();
 			}
 
-			var handler = notificationHandlers.get(notification.method());
+			McpServerSession.NotificationHandler handler = notificationHandlers.get(notification.method());
 			if (handler == null) {
 				logger.error("No handler registered for notification method: {}", notification.method());
 				return Mono.empty();
@@ -255,7 +262,14 @@ public class McpServerSession implements McpSession {
 		});
 	}
 
-	record MethodNotFoundError(String method, String message, Object data) {
+	@Accessors(fluent = true)
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	static class MethodNotFoundError {
+			String method;
+			String message;
+			Object data;
 	}
 
 	private MethodNotFoundError getMethodNotFoundError(String method) {

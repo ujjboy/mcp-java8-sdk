@@ -5,6 +5,7 @@ package io.modelcontextprotocol.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.modelcontextprotocol.client.McpClient;
+import io.modelcontextprotocol.client.McpSyncClient;
 import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
 import io.modelcontextprotocol.server.transport.WebMvcSseServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -49,7 +50,7 @@ class WebMvcSseCustomContextPathTests {
 			throw new RuntimeException("Failed to start Tomcat", e);
 		}
 
-		var clientTransport = HttpClientSseClientTransport.builder("http://localhost:" + PORT)
+		HttpClientSseClientTransport clientTransport = HttpClientSseClientTransport.builder("http://localhost:" + PORT)
 			.sseEndpoint(CUSTOM_CONTEXT_PATH + WebMvcSseServerTransportProvider.DEFAULT_SSE_ENDPOINT)
 			.build();
 
@@ -80,7 +81,7 @@ class WebMvcSseCustomContextPathTests {
 	@Test
 	void testCustomContextPath() {
 		McpServer.async(mcpServerTransportProvider).serverInfo("test-server", "1.0.0").build();
-		var client = clientBuilder.clientInfo(new McpSchema.Implementation("Sample " + "client", "0.0.0")).build();
+		McpSyncClient client = clientBuilder.clientInfo(new McpSchema.Implementation("Sample " + "client", "0.0.0")).build();
 		assertThat(client.initialize()).isNotNull();
 	}
 

@@ -84,7 +84,7 @@ public class WebFluxSseClientTransport implements McpClientTransport {
 	/**
 	 * Type reference for parsing SSE events containing string data.
 	 */
-	private static final ParameterizedTypeReference<ServerSentEvent<String>> SSE_TYPE = new ParameterizedTypeReference<>() {
+	private static final ParameterizedTypeReference<ServerSentEvent<String>> SSE_TYPE = new ParameterizedTypeReference<ServerSentEvent<String>>() {
 	};
 
 	/**

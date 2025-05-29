@@ -14,6 +14,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,7 @@ import io.modelcontextprotocol.spec.McpSchema.Tool;
 import io.modelcontextprotocol.spec.McpServerSession;
 import io.modelcontextprotocol.spec.McpServerTransportProvider;
 import io.modelcontextprotocol.util.DeafaultMcpUriTemplateManagerFactory;
+import io.modelcontextprotocol.util.JDK8Utils;
 import io.modelcontextprotocol.util.McpUriTemplateManagerFactory;
 import io.modelcontextprotocol.util.Utils;
 import org.slf4j.Logger;
@@ -106,7 +108,7 @@ public class McpAsyncServer {
 
 	private final ConcurrentHashMap<McpSchema.CompleteReference, McpServerFeatures.AsyncCompletionSpecification> completions = new ConcurrentHashMap<>();
 
-	private List<String> protocolVersions = List.of(McpSchema.LATEST_PROTOCOL_VERSION);
+	private List<String> protocolVersions = JDK8Utils.listOf(McpSchema.LATEST_PROTOCOL_VERSION);
 
 	private McpUriTemplateManagerFactory uriTemplateManagerFactory = new DeafaultMcpUriTemplateManagerFactory();
 
@@ -137,7 +139,7 @@ public class McpAsyncServer {
 		// Initialize request handlers for standard MCP methods
 
 		// Ping MUST respond with an empty data, but not NULL response.
-		requestHandlers.put(McpSchema.METHOD_PING, (exchange, params) -> Mono.just(Map.of()));
+		requestHandlers.put(McpSchema.METHOD_PING, (exchange, params) -> Mono.just(JDK8Utils.mapOf()));
 
 		// Add tools API handlers if the tool capability is enabled
 		if (this.serverCapabilities.tools() != null) {
@@ -176,7 +178,7 @@ public class McpAsyncServer {
 			.rootsChangeConsumers();
 
 		if (Utils.isEmpty(rootsChangeConsumers)) {
-			rootsChangeConsumers = List.of((exchange, roots) -> Mono.fromRunnable(() -> logger
+			rootsChangeConsumers = JDK8Utils.listOf((exchange, roots) -> Mono.fromRunnable(() -> logger
 				.warn("Roots list changed notification, but no consumers provided. Roots list changed: {}", roots)));
 		}
 
@@ -340,8 +342,8 @@ public class McpAsyncServer {
 
 	private McpServerSession.RequestHandler<McpSchema.ListToolsResult> toolsListRequestHandler() {
 		return (exchange, params) -> {
-			List<Tool> tools = this.tools.stream().map(McpServerFeatures.AsyncToolSpecification::tool).toList();
-
+			Stream<Tool> stream = this.tools.stream().map(McpServerFeatures.AsyncToolSpecification::tool);
+			List<Tool> tools = (List<Tool>) JDK8Utils.streamToList(stream);
 			return Mono.just(new McpSchema.ListToolsResult(tools, null));
 		};
 	}
@@ -356,7 +358,7 @@ public class McpAsyncServer {
 				.filter(tr -> callToolRequest.name().equals(tr.tool().name()))
 				.findAny();
 
-			if (toolSpecification.isEmpty()) {
+			if (!toolSpecification.isPresent()) {
 				return Mono.error(new McpError("Tool not found: " + callToolRequest.name()));
 			}
 
@@ -432,10 +434,10 @@ public class McpAsyncServer {
 
 	private McpServerSession.RequestHandler<McpSchema.ListResourcesResult> resourcesListRequestHandler() {
 		return (exchange, params) -> {
-			var resourceList = this.resources.values()
+			Stream<McpSchema.Resource> stream = this.resources.values()
 				.stream()
-				.map(McpServerFeatures.AsyncResourceSpecification::resource)
-				.toList();
+				.map(McpServerFeatures.AsyncResourceSpecification::resource);
+			List<McpSchema.Resource> resourceList = (List<McpSchema.Resource>) JDK8Utils.streamToList(stream);
 			return Mono.just(new McpSchema.ListResourcesResult(resourceList, null));
 		};
 	}
@@ -447,17 +449,17 @@ public class McpAsyncServer {
 	}
 
 	private List<McpSchema.ResourceTemplate> getResourceTemplates() {
-		var list = new ArrayList<>(this.resourceTemplates);
-		List<ResourceTemplate> resourceTemplates = this.resources.keySet()
+		List<McpSchema.ResourceTemplate> list = new ArrayList<>(this.resourceTemplates);
+		Stream<ResourceTemplate> stream = this.resources.keySet()
 			.stream()
 			.filter(uri -> uri.contains("{"))
 			.map(uri -> {
-				var resource = this.resources.get(uri).resource();
-				var template = new McpSchema.ResourceTemplate(resource.uri(), resource.name(), resource.description(),
+				McpSchema.Resource resource = this.resources.get(uri).resource();
+				McpSchema.ResourceTemplate template = new McpSchema.ResourceTemplate(resource.uri(), resource.name(), resource.description(),
 						resource.mimeType(), resource.annotations());
 				return template;
-			})
-			.toList();
+			});
+		List<McpSchema.ResourceTemplate> resourceTemplates = (List<McpSchema.ResourceTemplate>) JDK8Utils.streamToList(stream);
 
 		list.addAll(resourceTemplates);
 
@@ -469,7 +471,7 @@ public class McpAsyncServer {
 			McpSchema.ReadResourceRequest resourceRequest = objectMapper.convertValue(params,
 					new TypeReference<McpSchema.ReadResourceRequest>() {
 					});
-			var resourceUri = resourceRequest.uri();
+			String resourceUri = resourceRequest.uri();
 
 			McpServerFeatures.AsyncResourceSpecification specification = this.resources.values()
 				.stream()
@@ -564,10 +566,10 @@ public class McpAsyncServer {
 			// new TypeReference<McpSchema.PaginatedRequest>() {
 			// });
 
-			var promptList = this.prompts.values()
+			Stream<McpSchema.Prompt> stream = this.prompts.values()
 				.stream()
-				.map(McpServerFeatures.AsyncPromptSpecification::prompt)
-				.toList();
+				.map(McpServerFeatures.AsyncPromptSpecification::prompt);
+			List<McpSchema.Prompt> promptList = (List<McpSchema.Prompt>) JDK8Utils.streamToList(stream);
 
 			return Mono.just(new McpSchema.ListPromptsResult(promptList, null));
 		};
@@ -633,7 +635,7 @@ public class McpAsyncServer {
 				// with the broadcasting loggingNotification.
 				this.minLoggingLevel = newMinLoggingLevel.level();
 
-				return Mono.just(Map.of());
+				return Mono.just(JDK8Utils.mapOf());
 			});
 		};
 	}
@@ -655,7 +657,8 @@ public class McpAsyncServer {
 			String argumentName = request.argument().name();
 
 			// check if the referenced resource exists
-			if (type.equals("ref/prompt") && request.ref() instanceof McpSchema.PromptReference promptReference) {
+			if (type.equals("ref/prompt") && request.ref() instanceof McpSchema.PromptReference) {
+				McpSchema.PromptReference promptReference = (McpSchema.PromptReference) request.ref();
 				McpServerFeatures.AsyncPromptSpecification promptSpec = this.prompts.get(promptReference.name());
 				if (promptSpec == null) {
 					return Mono.error(new McpError("Prompt not found: " + promptReference.name()));
@@ -671,7 +674,8 @@ public class McpAsyncServer {
 				}
 			}
 
-			if (type.equals("ref/resource") && request.ref() instanceof McpSchema.ResourceReference resourceReference) {
+			if (type.equals("ref/resource") && request.ref() instanceof McpSchema.ResourceReference) {
+				McpSchema.ResourceReference resourceReference = (McpSchema.ResourceReference) request.ref();
 				McpServerFeatures.AsyncResourceSpecification resourceSpec = this.resources.get(resourceReference.uri());
 				if (resourceSpec == null) {
 					return Mono.error(new McpError("Resource not found: " + resourceReference.uri()));
@@ -715,11 +719,17 @@ public class McpAsyncServer {
 
 		String refType = (String) refMap.get("type");
 
-		McpSchema.CompleteReference ref = switch (refType) {
-			case "ref/prompt" -> new McpSchema.PromptReference(refType, (String) refMap.get("name"));
-			case "ref/resource" -> new McpSchema.ResourceReference(refType, (String) refMap.get("uri"));
-			default -> throw new IllegalArgumentException("Invalid ref type: " + refType);
-		};
+McpSchema.CompleteReference ref;
+switch (refType) {
+    case "ref/prompt":
+        ref = new McpSchema.PromptReference(refType, (String) refMap.get("name"));
+        break;
+    case "ref/resource":
+        ref = new McpSchema.ResourceReference(refType, (String) refMap.get("uri"));
+        break;
+    default:
+        throw new IllegalArgumentException("Invalid ref type: " + refType);
+}
 
 		String argName = (String) argMap.get("name");
 		String argValue = (String) argMap.get("value");

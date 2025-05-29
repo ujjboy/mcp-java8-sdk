@@ -30,10 +30,10 @@ public class McpAsyncServerExchange {
 
 	private volatile LoggingLevel minLoggingLevel = LoggingLevel.INFO;
 
-	private static final TypeReference<McpSchema.CreateMessageResult> CREATE_MESSAGE_RESULT_TYPE_REF = new TypeReference<>() {
+	private static final TypeReference<McpSchema.CreateMessageResult> CREATE_MESSAGE_RESULT_TYPE_REF = new TypeReference<McpSchema.CreateMessageResult>() {
 	};
 
-	private static final TypeReference<McpSchema.ListRootsResult> LIST_ROOTS_RESULT_TYPE_REF = new TypeReference<>() {
+	private static final TypeReference<McpSchema.ListRootsResult> LIST_ROOTS_RESULT_TYPE_REF = new TypeReference<McpSchema.ListRootsResult>() {
 	};
 
 	/**

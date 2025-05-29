@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.modelcontextprotocol.spec.McpClientSession;
@@ -32,6 +33,7 @@ import io.modelcontextprotocol.spec.McpSchema.PaginatedRequest;
 import io.modelcontextprotocol.spec.McpSchema.Root;
 import io.modelcontextprotocol.spec.McpTransport;
 import io.modelcontextprotocol.util.Assert;
+import io.modelcontextprotocol.util.JDK8Utils;
 import io.modelcontextprotocol.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +82,7 @@ public class McpAsyncClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(McpAsyncClient.class);
 
-	private static TypeReference<Void> VOID_TYPE_REFERENCE = new TypeReference<>() {
+	private static TypeReference<Void> VOID_TYPE_REFERENCE = new TypeReference<Void>() {
 	};
 
 	protected final Sinks.One<McpSchema.InitializeResult> initializedSink = Sinks.one();
@@ -149,7 +151,7 @@ public class McpAsyncClient {
 	/**
 	 * Supported protocol versions.
 	 */
-	private List<String> protocolVersions = List.of(McpSchema.LATEST_PROTOCOL_VERSION);
+	private List<String> protocolVersions = JDK8Utils.listOf(McpSchema.LATEST_PROTOCOL_VERSION);
 
 	/**
 	 * Create a new McpAsyncClient with the given transport and session request-response
@@ -481,7 +483,8 @@ public class McpAsyncClient {
 					new TypeReference<McpSchema.PaginatedRequest>() {
 					});
 
-			List<Root> roots = this.roots.values().stream().toList();
+			Stream<Root> stream = this.roots.values().stream();
+			List<Root> roots = JDK8Utils.streamToList(stream);
 
 			return Mono.just(new McpSchema.ListRootsResult(roots));
 		};
@@ -503,10 +506,10 @@ public class McpAsyncClient {
 	// --------------------------
 	// Tools
 	// --------------------------
-	private static final TypeReference<McpSchema.CallToolResult> CALL_TOOL_RESULT_TYPE_REF = new TypeReference<>() {
+	private static final TypeReference<McpSchema.CallToolResult> CALL_TOOL_RESULT_TYPE_REF = new TypeReference<McpSchema.CallToolResult>() {
 	};
 
-	private static final TypeReference<McpSchema.ListToolsResult> LIST_TOOLS_RESULT_TYPE_REF = new TypeReference<>() {
+	private static final TypeReference<McpSchema.ListToolsResult> LIST_TOOLS_RESULT_TYPE_REF = new TypeReference<McpSchema.ListToolsResult>() {
 	};
 
 	/**
@@ -569,13 +572,13 @@ public class McpAsyncClient {
 	// Resources
 	// --------------------------
 
-	private static final TypeReference<McpSchema.ListResourcesResult> LIST_RESOURCES_RESULT_TYPE_REF = new TypeReference<>() {
+	private static final TypeReference<McpSchema.ListResourcesResult> LIST_RESOURCES_RESULT_TYPE_REF = new TypeReference<McpSchema.ListResourcesResult>() {
 	};
 
-	private static final TypeReference<McpSchema.ReadResourceResult> READ_RESOURCE_RESULT_TYPE_REF = new TypeReference<>() {
+	private static final TypeReference<McpSchema.ReadResourceResult> READ_RESOURCE_RESULT_TYPE_REF = new TypeReference<McpSchema.ReadResourceResult>() {
 	};
 
-	private static final TypeReference<McpSchema.ListResourceTemplatesResult> LIST_RESOURCE_TEMPLATES_RESULT_TYPE_REF = new TypeReference<>() {
+	private static final TypeReference<McpSchema.ListResourceTemplatesResult> LIST_RESOURCE_TEMPLATES_RESULT_TYPE_REF = new TypeReference<McpSchema.ListResourceTemplatesResult>() {
 	};
 
 	/**
@@ -711,10 +714,10 @@ public class McpAsyncClient {
 	// --------------------------
 	// Prompts
 	// --------------------------
-	private static final TypeReference<McpSchema.ListPromptsResult> LIST_PROMPTS_RESULT_TYPE_REF = new TypeReference<>() {
+	private static final TypeReference<McpSchema.ListPromptsResult> LIST_PROMPTS_RESULT_TYPE_REF = new TypeReference<McpSchema.ListPromptsResult>() {
 	};
 
-	private static final TypeReference<McpSchema.GetPromptResult> GET_PROMPT_RESULT_TYPE_REF = new TypeReference<>() {
+	private static final TypeReference<McpSchema.GetPromptResult> GET_PROMPT_RESULT_TYPE_REF = new TypeReference<McpSchema.GetPromptResult>() {
 	};
 
 	/**
@@ -802,7 +805,7 @@ public class McpAsyncClient {
 		}
 
 		return this.withInitializationCheck("setting logging level", initializedResult -> {
-			var params = new McpSchema.SetLevelRequest(loggingLevel);
+			McpSchema.SetLevelRequest params = new McpSchema.SetLevelRequest(loggingLevel);
 			return this.mcpSession.sendRequest(McpSchema.METHOD_LOGGING_SET_LEVEL, params, new TypeReference<Object>() {
 			}).then();
 		});
@@ -820,7 +823,7 @@ public class McpAsyncClient {
 	// --------------------------
 	// Completions
 	// --------------------------
-	private static final TypeReference<McpSchema.CompleteResult> COMPLETION_COMPLETE_RESULT_TYPE_REF = new TypeReference<>() {
+	private static final TypeReference<McpSchema.CompleteResult> COMPLETION_COMPLETE_RESULT_TYPE_REF = new TypeReference<McpSchema.CompleteResult>() {
 	};
 
 	/**

@@ -31,7 +31,7 @@ class WebFluxSseMcpAsyncServerTests extends AbstractMcpAsyncServerTests {
 
 	@Override
 	protected McpServerTransportProvider createMcpTransportProvider() {
-		var transportProvider = new WebFluxSseServerTransportProvider.Builder().objectMapper(new ObjectMapper())
+		WebFluxSseServerTransportProvider transportProvider = new WebFluxSseServerTransportProvider.Builder().objectMapper(new ObjectMapper())
 			.messageEndpoint(MESSAGE_ENDPOINT)
 			.build();
 

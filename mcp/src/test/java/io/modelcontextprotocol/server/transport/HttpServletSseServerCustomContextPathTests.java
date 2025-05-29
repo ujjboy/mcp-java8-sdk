@@ -6,7 +6,9 @@ package io.modelcontextprotocol.server.transport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.modelcontextprotocol.client.McpClient;
+import io.modelcontextprotocol.client.McpSyncClient;
 import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
+import io.modelcontextprotocol.server.McpAsyncServer;
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.apache.catalina.LifecycleException;
@@ -78,9 +80,9 @@ class HttpServletSseServerCustomContextPathTests {
 
 	@Test
 	void testCustomContextPath() {
-		var server = McpServer.async(mcpServerTransportProvider).serverInfo("test-server", "1.0.0").build();
+		McpAsyncServer server = McpServer.async(mcpServerTransportProvider).serverInfo("test-server", "1.0.0").build();
 		try (//@formatter:off
-			var client = clientBuilder.clientInfo(new McpSchema.Implementation("Sample " + "client", "0.0.0")) .build()) { //@formatter:on
+			 McpSyncClient client = clientBuilder.clientInfo(new McpSchema.Implementation("Sample " + "client", "0.0.0")).build()) { //@formatter:on
 
 			assertThat(client.initialize()).isNotNull();
 		}

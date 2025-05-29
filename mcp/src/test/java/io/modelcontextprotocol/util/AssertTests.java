@@ -19,10 +19,10 @@ class AssertTests {
 		assertEquals("collection is null", e1.getMessage());
 
 		IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
-				() -> Assert.notEmpty(List.of(), "collection is empty"));
+				() -> Assert.notEmpty(JDK8Utils.listOf(), "collection is empty"));
 		assertEquals("collection is empty", e2.getMessage());
 
-		assertDoesNotThrow(() -> Assert.notEmpty(List.of("test"), "collection is not empty"));
+		assertDoesNotThrow(() -> Assert.notEmpty(JDK8Utils.listOf("test"), "collection is not empty"));
 	}
 
 	@Test

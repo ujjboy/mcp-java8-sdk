@@ -10,6 +10,7 @@ import java.util.UUID;
 import io.modelcontextprotocol.MockMcpServerTransport;
 import io.modelcontextprotocol.MockMcpServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema;
+import io.modelcontextprotocol.util.JDK8Utils;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +32,7 @@ class McpServerProtocolVersionTests {
 	@Test
 	void shouldUseLatestVersionByDefault() {
 		MockMcpServerTransport serverTransport = new MockMcpServerTransport();
-		var transportProvider = new MockMcpServerTransportProvider(serverTransport);
+		MockMcpServerTransportProvider transportProvider = new MockMcpServerTransportProvider(serverTransport);
 		McpAsyncServer server = McpServer.async(transportProvider).serverInfo(SERVER_INFO).build();
 
 		String requestId = UUID.randomUUID().toString();
@@ -54,11 +55,11 @@ class McpServerProtocolVersionTests {
 	void shouldNegotiateSpecificVersion() {
 		String oldVersion = "0.1.0";
 		MockMcpServerTransport serverTransport = new MockMcpServerTransport();
-		var transportProvider = new MockMcpServerTransportProvider(serverTransport);
+		MockMcpServerTransportProvider transportProvider = new MockMcpServerTransportProvider(serverTransport);
 
 		McpAsyncServer server = McpServer.async(transportProvider).serverInfo(SERVER_INFO).build();
 
-		server.setProtocolVersions(List.of(oldVersion, McpSchema.LATEST_PROTOCOL_VERSION));
+		server.setProtocolVersions(JDK8Utils.listOf(oldVersion, McpSchema.LATEST_PROTOCOL_VERSION));
 
 		String requestId = UUID.randomUUID().toString();
 
@@ -79,7 +80,7 @@ class McpServerProtocolVersionTests {
 	void shouldSuggestLatestVersionForUnsupportedVersion() {
 		String unsupportedVersion = "999.999.999";
 		MockMcpServerTransport serverTransport = new MockMcpServerTransport();
-		var transportProvider = new MockMcpServerTransportProvider(serverTransport);
+		MockMcpServerTransportProvider transportProvider = new MockMcpServerTransportProvider(serverTransport);
 
 		McpAsyncServer server = McpServer.async(transportProvider).serverInfo(SERVER_INFO).build();
 
@@ -105,11 +106,11 @@ class McpServerProtocolVersionTests {
 		String latestVersion = McpSchema.LATEST_PROTOCOL_VERSION;
 
 		MockMcpServerTransport serverTransport = new MockMcpServerTransport();
-		var transportProvider = new MockMcpServerTransportProvider(serverTransport);
+		MockMcpServerTransportProvider transportProvider = new MockMcpServerTransportProvider(serverTransport);
 
 		McpAsyncServer server = McpServer.async(transportProvider).serverInfo(SERVER_INFO).build();
 
-		server.setProtocolVersions(List.of(oldVersion, middleVersion, latestVersion));
+		server.setProtocolVersions(JDK8Utils.listOf(oldVersion, middleVersion, latestVersion));
 
 		String requestId = UUID.randomUUID().toString();
 		transportProvider.simulateIncomingMessage(jsonRpcInitializeRequest(requestId, latestVersion));

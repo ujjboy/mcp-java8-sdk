@@ -300,7 +300,7 @@ public class WebFluxSseServerTransportProvider implements McpServerTransportProv
 			return ServerResponse.status(HttpStatus.SERVICE_UNAVAILABLE).bodyValue("Server is shutting down");
 		}
 
-		if (request.queryParam("sessionId").isEmpty()) {
+		if (!request.queryParam("sessionId").isPresent()) {
 			return ServerResponse.badRequest().bodyValue(new McpError("Session ID missing in message endpoint"));
 		}
 

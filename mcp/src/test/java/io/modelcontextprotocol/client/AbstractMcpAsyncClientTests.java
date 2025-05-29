@@ -27,6 +27,7 @@ import io.modelcontextprotocol.spec.McpSchema.SubscribeRequest;
 import io.modelcontextprotocol.spec.McpSchema.Tool;
 import io.modelcontextprotocol.spec.McpSchema.UnsubscribeRequest;
 import io.modelcontextprotocol.spec.McpTransport;
+import io.modelcontextprotocol.util.JDK8Utils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -92,7 +93,7 @@ public abstract class AbstractMcpAsyncClientTests {
 
 	void withClient(McpClientTransport transport, Function<McpClient.AsyncSpec, McpClient.AsyncSpec> customizer,
 			Consumer<McpAsyncClient> c) {
-		var client = client(transport, customizer);
+		McpAsyncClient client = client(transport, customizer);
 		try {
 			c.accept(client);
 		}
@@ -168,14 +169,14 @@ public abstract class AbstractMcpAsyncClientTests {
 
 	@Test
 	void testCallToolWithoutInitialization() {
-		CallToolRequest callToolRequest = new CallToolRequest("echo", Map.of("message", ECHO_TEST_MESSAGE));
+		CallToolRequest callToolRequest = new CallToolRequest("echo", JDK8Utils.mapOf("message", ECHO_TEST_MESSAGE));
 		verifyInitializationTimeout(client -> client.callTool(callToolRequest), "calling tools");
 	}
 
 	@Test
 	void testCallTool() {
 		withClient(createMcpTransport(), mcpAsyncClient -> {
-			CallToolRequest callToolRequest = new CallToolRequest("echo", Map.of("message", ECHO_TEST_MESSAGE));
+			CallToolRequest callToolRequest = new CallToolRequest("echo", JDK8Utils.mapOf("message", ECHO_TEST_MESSAGE));
 
 			StepVerifier.create(mcpAsyncClient.initialize().then(mcpAsyncClient.callTool(callToolRequest)))
 				.consumeNextWith(callToolResult -> {
@@ -192,7 +193,7 @@ public abstract class AbstractMcpAsyncClientTests {
 	void testCallToolWithInvalidTool() {
 		withClient(createMcpTransport(), mcpAsyncClient -> {
 			CallToolRequest invalidRequest = new CallToolRequest("nonexistent_tool",
-					Map.of("message", ECHO_TEST_MESSAGE));
+					JDK8Utils.mapOf("message", ECHO_TEST_MESSAGE));
 
 			StepVerifier.create(mcpAsyncClient.initialize().then(mcpAsyncClient.callTool(invalidRequest)))
 				.consumeErrorWith(
@@ -258,7 +259,7 @@ public abstract class AbstractMcpAsyncClientTests {
 
 	@Test
 	void testGetPromptWithoutInitialization() {
-		GetPromptRequest request = new GetPromptRequest("simple_prompt", Map.of());
+		GetPromptRequest request = new GetPromptRequest("simple_prompt", JDK8Utils.mapOf());
 		verifyInitializationTimeout(client -> client.getPrompt(request), "getting " + "prompts");
 	}
 
@@ -267,7 +268,7 @@ public abstract class AbstractMcpAsyncClientTests {
 		withClient(createMcpTransport(), mcpAsyncClient -> {
 			StepVerifier
 				.create(mcpAsyncClient.initialize()
-					.then(mcpAsyncClient.getPrompt(new GetPromptRequest("simple_prompt", Map.of()))))
+					.then(mcpAsyncClient.getPrompt(new GetPromptRequest("simple_prompt", JDK8Utils.mapOf()))))
 				.consumeNextWith(prompt -> {
 					assertThat(prompt).isNotNull().satisfies(result -> {
 						assertThat(result.messages()).isNotEmpty();
@@ -424,8 +425,8 @@ public abstract class AbstractMcpAsyncClientTests {
 
 	@Test
 	void testInitializeWithAllCapabilities() {
-		var capabilities = ClientCapabilities.builder()
-			.experimental(Map.of("feature", "test"))
+		McpSchema.ClientCapabilities capabilities = ClientCapabilities.builder()
+			.experimental(JDK8Utils.mapOf("feature", "test"))
 			.roots(true)
 			.sampling()
 			.build();
