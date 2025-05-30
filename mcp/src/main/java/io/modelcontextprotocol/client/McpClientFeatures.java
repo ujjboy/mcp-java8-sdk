@@ -5,7 +5,6 @@
 package io.modelcontextprotocol.client;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,7 @@ import java.util.function.Function;
 
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.util.Assert;
+import io.modelcontextprotocol.util.JDK8Utils;
 import io.modelcontextprotocol.util.Utils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -105,10 +105,10 @@ class McpClientFeatures {
 							samplingHandler != null ? new McpSchema.ClientCapabilities.Sampling() : null);
 			this.roots = roots != null ? new ConcurrentHashMap<>(roots) : new ConcurrentHashMap<>();
 
-			this.toolsChangeConsumers = toolsChangeConsumers != null ? toolsChangeConsumers : Collections.emptyList();
-			this.resourcesChangeConsumers = resourcesChangeConsumers != null ? resourcesChangeConsumers : Collections.emptyList();
-			this.promptsChangeConsumers = promptsChangeConsumers != null ? promptsChangeConsumers : Collections.emptyList();
-			this.loggingConsumers = loggingConsumers != null ? loggingConsumers : Collections.emptyList();
+			this.toolsChangeConsumers = toolsChangeConsumers != null ? toolsChangeConsumers : JDK8Utils.listOf();
+			this.resourcesChangeConsumers = resourcesChangeConsumers != null ? resourcesChangeConsumers : JDK8Utils.listOf();
+			this.promptsChangeConsumers = promptsChangeConsumers != null ? promptsChangeConsumers : JDK8Utils.listOf();
+			this.loggingConsumers = loggingConsumers != null ? loggingConsumers : JDK8Utils.listOf();
 			this.samplingHandler = samplingHandler;
 		}
 
@@ -207,10 +207,10 @@ class McpClientFeatures {
 							samplingHandler != null ? new McpSchema.ClientCapabilities.Sampling() : null);
 			this.roots = roots != null ? new HashMap<>(roots) : new HashMap<>();
 
-			this.toolsChangeConsumers = toolsChangeConsumers != null ? toolsChangeConsumers : Collections.emptyList();
-			this.resourcesChangeConsumers = resourcesChangeConsumers != null ? resourcesChangeConsumers : Collections.emptyList();
-			this.promptsChangeConsumers = promptsChangeConsumers != null ? promptsChangeConsumers : Collections.emptyList();
-			this.loggingConsumers = loggingConsumers != null ? loggingConsumers : Collections.emptyList();
+			this.toolsChangeConsumers = toolsChangeConsumers != null ? toolsChangeConsumers : JDK8Utils.listOf();
+			this.resourcesChangeConsumers = resourcesChangeConsumers != null ? resourcesChangeConsumers : JDK8Utils.listOf();
+			this.promptsChangeConsumers = promptsChangeConsumers != null ? promptsChangeConsumers : JDK8Utils.listOf();
+			this.loggingConsumers = loggingConsumers != null ? loggingConsumers : JDK8Utils.listOf();
 			this.samplingHandler = samplingHandler;
 		}
 	}

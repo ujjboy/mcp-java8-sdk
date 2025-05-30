@@ -20,6 +20,7 @@ import io.modelcontextprotocol.spec.McpSchema.ResourceTemplate;
 import io.modelcontextprotocol.spec.McpServerTransportProvider;
 import io.modelcontextprotocol.util.Assert;
 import io.modelcontextprotocol.util.DeafaultMcpUriTemplateManagerFactory;
+import io.modelcontextprotocol.util.JDK8Utils;
 import io.modelcontextprotocol.util.McpUriTemplateManagerFactory;
 import reactor.core.publisher.Mono;
 
@@ -1101,7 +1102,7 @@ public interface McpServer {
 		public SyncSpecification rootsChangeHandlers(
 				BiConsumer<McpSyncServerExchange, List<McpSchema.Root>>... handlers) {
 			Assert.notNull(handlers, "Handlers list must not be null");
-			return this.rootsChangeHandlers(handlers);
+			return this.rootsChangeHandlers(JDK8Utils.listOf(handlers));
 		}
 
 		/**

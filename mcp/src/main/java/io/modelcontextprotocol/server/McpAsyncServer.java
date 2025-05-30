@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiFunction;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -342,8 +341,7 @@ public class McpAsyncServer {
 
 	private McpServerSession.RequestHandler<McpSchema.ListToolsResult> toolsListRequestHandler() {
 		return (exchange, params) -> {
-			Stream<Tool> stream = this.tools.stream().map(McpServerFeatures.AsyncToolSpecification::tool);
-			List<Tool> tools = (List<Tool>) JDK8Utils.streamToList(stream);
+			List<Tool> tools = JDK8Utils.streamToList(this.tools.stream().map(McpServerFeatures.AsyncToolSpecification::tool));
 			return Mono.just(new McpSchema.ListToolsResult(tools, null));
 		};
 	}
@@ -434,10 +432,9 @@ public class McpAsyncServer {
 
 	private McpServerSession.RequestHandler<McpSchema.ListResourcesResult> resourcesListRequestHandler() {
 		return (exchange, params) -> {
-			Stream<McpSchema.Resource> stream = this.resources.values()
+			List<McpSchema.Resource> resourceList = JDK8Utils.streamToList(this.resources.values()
 				.stream()
-				.map(McpServerFeatures.AsyncResourceSpecification::resource);
-			List<McpSchema.Resource> resourceList = (List<McpSchema.Resource>) JDK8Utils.streamToList(stream);
+				.map(McpServerFeatures.AsyncResourceSpecification::resource));
 			return Mono.just(new McpSchema.ListResourcesResult(resourceList, null));
 		};
 	}
@@ -450,7 +447,7 @@ public class McpAsyncServer {
 
 	private List<McpSchema.ResourceTemplate> getResourceTemplates() {
 		List<McpSchema.ResourceTemplate> list = new ArrayList<>(this.resourceTemplates);
-		Stream<ResourceTemplate> stream = this.resources.keySet()
+		List<ResourceTemplate> resourceTemplates = JDK8Utils.streamToList(this.resources.keySet()
 			.stream()
 			.filter(uri -> uri.contains("{"))
 			.map(uri -> {
@@ -458,8 +455,7 @@ public class McpAsyncServer {
 				McpSchema.ResourceTemplate template = new McpSchema.ResourceTemplate(resource.uri(), resource.name(), resource.description(),
 						resource.mimeType(), resource.annotations());
 				return template;
-			});
-		List<McpSchema.ResourceTemplate> resourceTemplates = (List<McpSchema.ResourceTemplate>) JDK8Utils.streamToList(stream);
+			}));
 
 		list.addAll(resourceTemplates);
 
@@ -566,10 +562,9 @@ public class McpAsyncServer {
 			// new TypeReference<McpSchema.PaginatedRequest>() {
 			// });
 
-			Stream<McpSchema.Prompt> stream = this.prompts.values()
+			List<McpSchema.Prompt> promptList = JDK8Utils.streamToList(this.prompts.values()
 				.stream()
-				.map(McpServerFeatures.AsyncPromptSpecification::prompt);
-			List<McpSchema.Prompt> promptList = (List<McpSchema.Prompt>) JDK8Utils.streamToList(stream);
+				.map(McpServerFeatures.AsyncPromptSpecification::prompt));
 
 			return Mono.just(new McpSchema.ListPromptsResult(promptList, null));
 		};

@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +24,7 @@ import io.modelcontextprotocol.spec.McpError;
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.JSONRPCMessage;
 import io.modelcontextprotocol.util.Assert;
+import io.modelcontextprotocol.util.JDK8Utils;
 import io.modelcontextprotocol.util.Utils;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -214,7 +214,7 @@ public class HttpClientSseClientTransport implements McpClientTransport {
         private String sseEndpoint = DEFAULT_SSE_ENDPOINT;
 
         private OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder()
-                .protocols(Collections.singletonList(Protocol.HTTP_1_1))
+                .protocols(JDK8Utils.listOf(Protocol.HTTP_1_1))
                 .connectTimeout(Duration.ofSeconds(10));
 
         private ObjectMapper objectMapper = new ObjectMapper();

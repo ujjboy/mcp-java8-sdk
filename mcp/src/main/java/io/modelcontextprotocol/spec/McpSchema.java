@@ -136,7 +136,7 @@ public final class McpSchema {
 
 	}
 
-	public  interface Request {
+	public interface Request {
 
 	}
 
@@ -189,7 +189,7 @@ public final class McpSchema {
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
-	public static final class JSONRPCRequest implements JSONRPCMessage { // @formatter:off
+	public static class JSONRPCRequest implements JSONRPCMessage { // @formatter:off
 			@JsonProperty("jsonrpc") String jsonrpc;
 			@JsonProperty("method") String method;
 			@JsonProperty("id") Object id;
@@ -202,7 +202,7 @@ public final class McpSchema {
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
-	public static final class JSONRPCNotification implements JSONRPCMessage {// @formatter:off
+	public static class JSONRPCNotification implements JSONRPCMessage {// @formatter:off
 			@JsonProperty("jsonrpc") String jsonrpc;
 			@JsonProperty("method") String method;
 			@JsonProperty("params") Object params;
@@ -316,7 +316,6 @@ public final class McpSchema {
 		 * from MCP servers in their prompts.
 		 */
 		@JsonInclude(JsonInclude.Include.NON_ABSENT)			
-		@JsonIgnoreProperties(ignoreUnknown = true)
 		@Accessors(fluent = true)
 		@Data
 		public static class Sampling {
@@ -357,9 +356,7 @@ public final class McpSchema {
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
-	public static class ServerCapabilities {
-
-		// @formatter:off
+	public static class ServerCapabilities { // @formatter:off
 		@JsonProperty("completions") CompletionCapabilities completions;
 		@JsonProperty("experimental") Map<String, Object> experimental;
 		@JsonProperty("logging") LoggingCapabilities logging;
@@ -368,36 +365,32 @@ public final class McpSchema {
 		@JsonProperty("tools") ToolCapabilities tools;
 
 		@JsonInclude(JsonInclude.Include.NON_ABSENT)
+		@Accessors(fluent = true)
+		@Data
 		public static class CompletionCapabilities {
 		}
 			
 		@JsonInclude(JsonInclude.Include.NON_ABSENT)
-		@JsonIgnoreProperties(ignoreUnknown = true)
 		@Accessors(fluent = true)
 		@Data
 		public static class LoggingCapabilities {
 		}
 	
 		@JsonInclude(JsonInclude.Include.NON_ABSENT)
-		@JsonIgnoreProperties(ignoreUnknown = true)
 		@Accessors(fluent = true)
 		@Data
 		@AllArgsConstructor
 		@NoArgsConstructor
 		public static class PromptCapabilities {
-
 			@JsonProperty("listChanged") Boolean listChanged;
-
 		}
 
 		@JsonInclude(JsonInclude.Include.NON_ABSENT)
-		@JsonIgnoreProperties(ignoreUnknown = true)
 		@Accessors(fluent = true)
 		@Data
 		@AllArgsConstructor
 		@NoArgsConstructor
 		public static class ResourceCapabilities {
-
 			@JsonProperty("subscribe") Boolean subscribe;
 			@JsonProperty("listChanged") Boolean listChanged;
 		}
@@ -409,7 +402,6 @@ public final class McpSchema {
 		@AllArgsConstructor
 		@NoArgsConstructor
 		public static class ToolCapabilities {
-
 			@JsonProperty("listChanged") Boolean listChanged;
 		}
 
@@ -470,7 +462,7 @@ public final class McpSchema {
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
-	public static class Implementation {// @formatter:off
+	public static class Implementation { // @formatter:off
 		@JsonProperty("name") String name;
 		@JsonProperty("version") String version;
 	} // @formatter:on
@@ -909,7 +901,7 @@ public final class McpSchema {
 	@Data
     @AllArgsConstructor
 	@NoArgsConstructor
-	public static final class CallToolRequest implements Request {// @formatter:off
+	public static class CallToolRequest implements Request {// @formatter:off
 		@JsonProperty("name") String name;
 		@JsonProperty("arguments") Map<String, Object> arguments;
 
@@ -1104,7 +1096,7 @@ public final class McpSchema {
 
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
-		@Accessors(fluent = true)
+	@Accessors(fluent = true)
 	@Data
     @AllArgsConstructor
 	@NoArgsConstructor
@@ -1133,7 +1125,7 @@ public final class McpSchema {
 	@Data
     @AllArgsConstructor
 	@NoArgsConstructor
-	public static final class CreateMessageRequest implements Request {// @formatter:off
+	public static class CreateMessageRequest implements Request {// @formatter:off
 		@JsonProperty("messages") List<SamplingMessage> messages;
 		@JsonProperty("modelPreferences") ModelPreferences modelPreferences;
 		@JsonProperty("systemPrompt") String systemPrompt;
@@ -1385,7 +1377,7 @@ public final class McpSchema {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class SetLevelRequest {
-	@JsonProperty("level") LoggingLevel level;
+		@JsonProperty("level") LoggingLevel level;
 	}
 
 	// ---------------------------
@@ -1402,12 +1394,12 @@ public final class McpSchema {
 	@JsonInclude(JsonInclude.Include.NON_ABSENT)
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	@Accessors(fluent = true)
-		@Data
-        @AllArgsConstructor
-		@NoArgsConstructor
-		public static final class PromptReference implements McpSchema.CompleteReference{// @formatter:off
-		@JsonProperty("type") String type;
-		@JsonProperty("name") String name;
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class PromptReference implements McpSchema.CompleteReference{// @formatter:off
+	@JsonProperty("type") String type;
+	@JsonProperty("name") String name;
 
 		public PromptReference(String name) {
 			this("ref/prompt", name);
@@ -1425,7 +1417,7 @@ public final class McpSchema {
 	@Data
     @AllArgsConstructor
 	@NoArgsConstructor
-	public static final class ResourceReference implements McpSchema.CompleteReference {// @formatter:off
+	public static class ResourceReference implements McpSchema.CompleteReference {// @formatter:off
 		@JsonProperty("type") String type;
 		@JsonProperty("uri") String uri;
 
@@ -1445,7 +1437,7 @@ public final class McpSchema {
 	@Data
     @AllArgsConstructor
 	@NoArgsConstructor
-	public static final class CompleteRequest implements Request {// @formatter:off
+	public static class CompleteRequest implements Request {// @formatter:off
 		@JsonProperty("ref") McpSchema.CompleteReference ref;
 		@JsonProperty("argument") CompleteArgument argument;
 
@@ -1459,27 +1451,25 @@ public final class McpSchema {
 		}// @formatter:on
 	}
 
+	@JsonInclude(JsonInclude.Include.NON_ABSENT)
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	@Accessors(fluent = true)
 	@Data
     @AllArgsConstructor
 	@NoArgsConstructor
 	public static class CompleteResult {
 
-		private CompleteCompletion completion;
+		@JsonProperty("completion") CompleteCompletion completion;
 
 		@Accessors(fluent = true)
 		@Data
         @AllArgsConstructor
 		@NoArgsConstructor
 		public static class CompleteCompletion {
-			@JsonProperty("values")
-			private List<String> values;
-			@JsonProperty("total")
-			private Integer total;
-			@JsonProperty("hasMore")
-			private Boolean hasMore;
-
-		}
+			@JsonProperty("values") List<String> values;
+			@JsonProperty("total") Integer total;
+			@JsonProperty("hasMore") Boolean hasMore;
+		}// @formatter:on
 	}
 
 	// ---------------------------
@@ -1512,7 +1502,7 @@ public final class McpSchema {
 	@Data
     @AllArgsConstructor
 	@NoArgsConstructor
-	public static final class TextContent implements Content {
+	public static class TextContent implements Content {
 		@JsonProperty("audience")
 		private List<Role> audience;
 		@JsonProperty("priority")
@@ -1531,7 +1521,7 @@ public final class McpSchema {
 	@Data
     @AllArgsConstructor
 	@NoArgsConstructor
-	public static final class ImageContent implements Content {
+	public static class ImageContent implements Content {
 		@JsonProperty("audience")
 		private List<Role> audience;
 		@JsonProperty("priority")
@@ -1548,7 +1538,7 @@ public final class McpSchema {
 	@Data
     @AllArgsConstructor
 	@NoArgsConstructor
-	public static final class EmbeddedResource implements Content {
+	public static class EmbeddedResource implements Content {
 		@JsonProperty("audience") List<Role> audience;
 		@JsonProperty("priority") Double priority;
 		@JsonProperty("resource") ResourceContents resource;
